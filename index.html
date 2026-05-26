@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meridian</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+
+      <div class="header">
+        <p class="greeting">Good morning 🌸</p>
+        <p class="date">Sunday, May 25</p>
+        <div class="points-pill" id="points-display">⭐ 0 pts today</div>
+      </div>
+
+      <div class="content">
+        <p class="section-label">Today's schedule</p>
+        <div id="schedule"></div>
+
+        <p class="section-label">Tasks</p>
+        <div id="tasks"></div>
+
+        <p class="section-label">Habits</p>
+        <div id="habits"></div>
+      </div>
+
+      <div class="bottom-nav">
+        <button>📅 Calendar</button>
+        <button>✅ Habits</button>
+        <button class="active">🏠 Home</button>
+        <button>🐾 Pet</button>
+        <button>⏱ Focus</button>
+      </div>
+
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>
