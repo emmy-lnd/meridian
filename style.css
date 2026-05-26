@@ -279,3 +279,26 @@ body {
   font-weight: 700;
   cursor: pointer;
 }
+
+#year-view {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  padding: 8px 0;
+}
+
+.month-card {
+  background: white;
+  border: 2px solid #e8c9e0;
+  border-radius: 12px;
+  padding: 16px 8px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #c45c8a;
+  cursor: pointer;
+}
+
+.month-card:hover {
+  background: #f4d0e6;
+}

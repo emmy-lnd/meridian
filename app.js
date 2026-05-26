@@ -218,3 +218,50 @@ function saveEvent() {
 
   closeModal();
 }
+
+function switchTab(tab) {
+  const tabs = ['home', 'calendar', 'habits', 'pet', 'focus'];
+  tabs.forEach(function(t) {
+    document.getElementById('tab-' + t).style.display = t === tab ? 'block' : 'none';
+  });
+
+  const tabOrder = ['calendar', 'habits', 'home', 'pet', 'focus'];
+  const buttons = document.querySelectorAll('.bottom-nav button');
+  buttons.forEach(function(btn, i) {
+    btn.classList.toggle('active', tabOrder[i] === tab);
+  });
+
+  const titles = {
+    calendar: 'Calendar 📅',
+    habits: 'Habits ✅',
+    pet: 'My Pet 🐾',
+    focus: 'Focus ⏱'
+  };
+
+  if (tab === 'home') {
+    document.getElementById('main-header').style.display = 'block';
+    document.getElementById('tab-header').style.display = 'none';
+  } else {
+    document.getElementById('main-header').style.display = 'none';
+    document.getElementById('tab-header').style.display = 'block';
+    document.getElementById('tab-title').textContent = titles[tab];
+  }
+}
+
+const months = [
+  "January", "February", "March", "April",
+  "May", "June", "July", "August",
+  "September", "October", "November", "December"
+];
+
+const yearView = document.getElementById("year-view");
+
+months.forEach(function(month, index) {
+  const card = document.createElement("div");
+  card.className = "month-card";
+  card.textContent = month;
+  card.onclick = function() {
+    showMonth(index);
+  };
+  yearView.appendChild(card);
+});

@@ -11,13 +11,17 @@
   <body>
     <div class="app">
 
-      <div class="header">
-        <p class="greeting">Good morning 🌸</p>
-        <p class="date">Sunday, May 25</p>
-        <div class="points-pill" id="points-display">⭐ 0 pts today</div>
-      </div>
+      <div class="header" id="main-header">
+  <p class="greeting">Good morning 🌸</p>
+  <p class="date">Sunday, May 25</p>
+  <div class="points-pill" id="points-display">⭐ 0 pts today</div>
+</div>
 
-      <div class="content">
+<div class="header" id="tab-header" style="display:none;">
+  <p class="greeting" id="tab-title">Calendar</p>
+</div>
+
+      <div class="content" id="tab-home">
         <p class="section-label">Today's schedule</p>
         <div id="schedule"></div>
 
@@ -26,32 +30,50 @@
 
         <p class="section-label">Habits</p>
         <div id="habits"></div>
-        <div class="modal-overlay" id="modal" style="display:none;">
-  <div class="modal">
-    <h2 class="modal-title">Add Event</h2>
-    <input class="modal-input" id="event-title" type="text" placeholder="Class or event name" />
-    <input class="modal-input" id="event-time" type="time" />
-    <input class="modal-input" id="event-subtask" type="text" placeholder="Note (optional)" />
-    <select class="modal-input" id="event-color">
-      <option value="pink">Pink</option>
-      <option value="lavender">Lavender</option>
-      <option value="peach">Peach</option>
-      <option value="mint">Mint</option>
-    </select>
-    <div class="modal-buttons">
-      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
-      <button class="modal-save" onclick="saveEvent()">Save</button>
-    </div>
-  </div>
-</div>
+      </div>
+
+      <div class="content" id="tab-calendar" style="display:none;">
+        <p class="section-label">Calendar</p>
+        <div id="year-view"></div>
+      </div>
+
+      <div class="content" id="tab-habits" style="display:none;">
+        <p class="section-label">Habits</p>
+      </div>
+
+      <div class="content" id="tab-pet" style="display:none;">
+        <p class="section-label">Pet</p>
+      </div>
+
+      <div class="content" id="tab-focus" style="display:none;">
+        <p class="section-label">Focus</p>
+      </div>
+
+      <div class="modal-overlay" id="modal" style="display:none;">
+        <div class="modal">
+          <h2 class="modal-title">Add Event</h2>
+          <input class="modal-input" id="event-title" type="text" placeholder="Class or event name" />
+          <input class="modal-input" id="event-time" type="time" />
+          <input class="modal-input" id="event-subtask" type="text" placeholder="Note (optional)" />
+          <select class="modal-input" id="event-color">
+            <option value="pink">Pink</option>
+            <option value="lavender">Lavender</option>
+            <option value="peach">Peach</option>
+            <option value="mint">Mint</option>
+          </select>
+          <div class="modal-buttons">
+            <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+            <button class="modal-save" onclick="saveEvent()">Save</button>
+          </div>
+        </div>
       </div>
 
       <div class="bottom-nav">
-        <button>📅 Calendar</button>
-        <button>✅ Habits</button>
-        <button class="active">🏠 Home</button>
-        <button>🐾 Pet</button>
-        <button>⏱ Focus</button>
+        <button onclick="switchTab('calendar')">📅 Calendar</button>
+        <button onclick="switchTab('habits')">✅ Habits</button>
+        <button class="active" onclick="switchTab('home')">🏠 Home</button>
+        <button onclick="switchTab('pet')">🐾 Pet</button>
+        <button onclick="switchTab('focus')">⏱ Focus</button>
       </div>
 
     </div>
