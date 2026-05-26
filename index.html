@@ -26,6 +26,24 @@
 
         <p class="section-label">Habits</p>
         <div id="habits"></div>
+        <div class="modal-overlay" id="modal" style="display:none;">
+  <div class="modal">
+    <h2 class="modal-title">Add Event</h2>
+    <input class="modal-input" id="event-title" type="text" placeholder="Class or event name" />
+    <input class="modal-input" id="event-time" type="time" />
+    <input class="modal-input" id="event-subtask" type="text" placeholder="Note (optional)" />
+    <select class="modal-input" id="event-color">
+      <option value="pink">Pink</option>
+      <option value="lavender">Lavender</option>
+      <option value="peach">Peach</option>
+      <option value="mint">Mint</option>
+    </select>
+    <div class="modal-buttons">
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-save" onclick="saveEvent()">Save</button>
+    </div>
+  </div>
+</div>
       </div>
 
       <div class="bottom-nav">

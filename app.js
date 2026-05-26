@@ -181,3 +181,40 @@ habitsDiv.innerHTML = `
     <span class="task-pts">1pt</span>
   </div>
 `;
+
+function openModal(type) {
+  document.getElementById("modal").style.display = "flex";
+}
+
+function closeModal() {
+  document.getElementById("modal").style.display = "none";
+  document.getElementById("event-title").value = "";
+  document.getElementById("event-time").value = "";
+  document.getElementById("event-subtask").value = "";
+}
+
+function saveEvent() {
+  const title = document.getElementById("event-title").value;
+  const time = document.getElementById("event-time").value;
+  const subtask = document.getElementById("event-subtask").value;
+  const color = document.getElementById("event-color").value;
+
+  if (!title || !time) return;
+
+  const hour = parseInt(time.split(":")[0]);
+  const minutes = parseInt(time.split(":")[1]);
+  const topPercent = ((hour + minutes / 60 - startHour) / totalHours) * 100;
+
+  const block = document.createElement("div");
+  block.className = "schedule-block";
+  block.style.top = topPercent + "%";
+  block.innerHTML = `
+    <div class="event-card ${color}">
+      ${title}
+      ${subtask ? `<div class="event-subtask">• ${subtask}</div>` : ""}
+    </div>
+  `;
+  scheduleInner.appendChild(block);
+
+  closeModal();
+}
