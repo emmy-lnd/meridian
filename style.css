@@ -68,10 +68,9 @@ body {
   margin: 16px 0 8px;
 }
 
-/* SCHEDULE */
 .schedule-wrapper {
   position: relative;
-  height: 160px;
+  height: 240px;
   overflow-y: scroll;
   margin-bottom: 8px;
 }
@@ -93,12 +92,17 @@ body {
   font-size: 13px;
   font-weight: 600;
   margin-left: 44px;
+  position: relative;
 }
 
 .event-card.pink { background: #f9d5e8; color: #7a2e56; }
 .event-card.lavender { background: #e8d5f9; color: #4a2e7a; }
 .event-card.peach { background: #f9e5d5; color: #7a4a2e; }
 .event-card.mint { background: #d5f9e8; color: #2e7a56; }
+.event-card.sky { background: #d5eef9; color: #1a5a7a; }
+.event-card.yellow { background: #f9f4d5; color: #7a6a2e; }
+.event-card.coral { background: #f9d5d5; color: #7a2e2e; }
+.event-card.lilac { background: #ead5f9; color: #5a2e7a; }
 
 .event-subtask {
   font-size: 11px;
@@ -107,7 +111,20 @@ body {
   opacity: 0.75;
 }
 
-/* TASKS & HABITS */
+.event-delete {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 10px;
+  color: rgba(0,0,0,0.3);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.event-delete:hover {
+  color: rgba(0,0,0,0.6);
+}
+
 .task-item {
   display: flex;
   align-items: center;
@@ -174,7 +191,6 @@ body {
   color: #4a2e3a;
 }
 
-/* CALENDAR TAB */
 .cal-top-row {
   display: flex;
   gap: 10px;
@@ -232,24 +248,10 @@ body {
   cursor: pointer;
 }
 
-.mini-cal-grid .day-num:hover {
-  background: #f4d0e6;
-}
-
-.mini-cal-grid .day-num.today {
-  background: #c45c8a;
-  color: white;
-}
-
-.mini-cal-grid .day-num.selected {
-  background: #f4d0e6;
-  color: #8b3a62;
-}
-
-.mini-cal-grid .day-num.empty {
-  color: transparent;
-  cursor: default;
-}
+.mini-cal-grid .day-num:hover { background: #f4d0e6; }
+.mini-cal-grid .day-num.today { background: #c45c8a; color: white; }
+.mini-cal-grid .day-num.selected { background: #f4d0e6; color: #8b3a62; }
+.mini-cal-grid .day-num.empty { color: transparent; cursor: default; }
 
 .upcoming-wrap {
   flex: 1;
@@ -274,7 +276,6 @@ body {
   margin-top: 2px;
 }
 
-/* ADD BUTTON */
 .add-btn {
   background: #f4d0e6;
   color: #8b3a62;
@@ -288,7 +289,6 @@ body {
   margin-bottom: 8px;
 }
 
-/* MODAL */
 .modal-overlay {
   position: absolute;
   top: 0;
@@ -311,6 +311,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 .modal-title {
@@ -360,12 +362,28 @@ body {
   cursor: pointer;
 }
 
-/* BOTTOM NAV */
+.day-picker {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.day-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #8b3a62;
+  gap: 2px;
+  cursor: pointer;
+}
+
 .bottom-nav {
   background: #7a3a62;
   display: flex;
   justify-content: space-around;
-  padding: 10px 0 16px;
+  padding: 12px 0 20px;
   flex-shrink: 0;
 }
 
@@ -379,15 +397,13 @@ body {
   opacity: 0.6;
   cursor: pointer;
   padding: 4px 8px;
+  line-height: 1.6;
+  text-align: center;
 }
 
-.bottom-nav button.active {
-  opacity: 1;
-}
+.bottom-nav button.active { opacity: 1; }
 
-.habits-section {
-  margin-bottom: 12px;
-}
+.habits-section { margin-bottom: 12px; }
 
 .habit-card {
   display: flex;
@@ -401,9 +417,7 @@ body {
   cursor: pointer;
 }
 
-.habit-card.done {
-  opacity: 0.6;
-}
+.habit-card.done { opacity: 0.6; }
 
 .habit-card-dot {
   width: 14px;
@@ -431,18 +445,11 @@ body {
   color: #b080a0;
 }
 
-.habit-card-pts {
-  font-size: 11px;
-  font-weight: 700;
-  color: #c45c8a;
-}
+.habit-card-pts { font-size: 11px; font-weight: 700; color: #c45c8a; }
 
 .detail-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   background: #fdf6fb;
   z-index: 50;
   display: flex;
@@ -470,7 +477,7 @@ body {
   padding: 0;
 }
 
-.detail-title { 
+.detail-title {
   font-size: 16px;
   font-weight: 800;
   color: #c45c8a;
@@ -493,9 +500,7 @@ body {
   margin-bottom: 8px;
 }
 
-.detail-stat {
-  text-align: center;
-}
+.detail-stat { text-align: center; }
 
 .detail-stat-num {
   font-size: 24px;
@@ -530,16 +535,8 @@ body {
   color: #b080a0;
 }
 
-.completion-cell.completed {
-  background: #c45c8a;
-  color: white;
-}
-
-.completion-cell.empty {
-  background: transparent;
-}
-
-
+.completion-cell.completed { background: #c45c8a; color: white; }
+.completion-cell.empty { background: transparent; }
 .completion-day-label {
   font-size: 8px;
   font-weight: 800;

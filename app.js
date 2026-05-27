@@ -2,12 +2,10 @@ console.log("Meridian is running");
 
 // ---- DATA ----
 const defaultEvents = [
-  { date: "2026-05-26", time: "09:00", title: "AP Chemistry", subtask: "Lab quiz", color: "pink" },
-  { date: "2026-05-26", time: "10:00", title: "AP Calculus BC", subtask: "6.7 video + notes", color: "lavender" },
-  { date: "2026-05-26", time: "12:00", title: "British Literature", subtask: "Presentation 01/16", color: "peach" },
-  { date: "2026-05-26", time: "16:00", title: "Swim Practice", subtask: "", color: "mint" },
-  { date: "2026-05-28", time: "09:00", title: "Math Test", subtask: "", color: "lavender" },
-  { date: "2026-05-30", time: "14:00", title: "Swim Meet", subtask: "", color: "mint" }
+  { id: "e1", date: "2026-05-27", time: "09:00", timeEnd: "10:00", title: "AP Chemistry", subtask: "Lab quiz", color: "pink", recur: "none", recurStart: "2026-05-27", exceptions: [] },
+  { id: "e2", date: "2026-05-27", time: "10:00", timeEnd: "11:00", title: "AP Calculus BC", subtask: "6.7 video + notes", color: "lavender", recur: "none", recurStart: "2026-05-27", exceptions: [] },
+  { id: "e3", date: "2026-05-27", time: "12:00", timeEnd: "13:00", title: "British Literature", subtask: "Presentation 01/16", color: "peach", recur: "none", recurStart: "2026-05-27", exceptions: [] },
+  { id: "e4", date: "2026-05-27", time: "16:00", timeEnd: "18:00", title: "Swim Practice", subtask: "", color: "mint", recur: "none", recurStart: "2026-05-27", exceptions: [] }
 ];
 
 const defaultHabits = [
@@ -33,6 +31,40 @@ function saveData() {
   localStorage.setItem("meridian-pts", earnedPts);
 }
 
+// ---- RECURRING LOGIC ----
+function eventOccursOnDate(event, dateStr) {
+  if (event.exceptions && event.exceptions.includes(dateStr)) return false;
+  if (event.recurEnd && dateStr > event.recurEnd) return false;
+  if (dateStr < event.recurStart) return false;
+
+  if (event.recur === "none") return event.date === dateStr;
+  if (event.recur === "daily") return true;
+
+  if (event.recur === "specific") {
+    const checkDate = new Date(dateStr + "T00:00:00");
+    const dayOfWeek = checkDate.getDay().toString();
+    return event.specificDays && event.specificDays.includes(dayOfWeek);
+  }
+
+  const eventDate = new Date(event.recurStart + "T00:00:00");
+  const checkDate = new Date(dateStr + "T00:00:00");
+  const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+  const weeksDiff = Math.round((checkDate - eventDate) / msPerWeek);
+
+  if (event.recur === "weekly") return weeksDiff >= 0 && weeksDiff % 1 === 0;
+  if (event.recur === "biweekly") return weeksDiff >= 0 && weeksDiff % 2 === 0;
+  if (event.recur === "triweekly") return weeksDiff >= 0 && weeksDiff % 3 === 0;
+  if (event.recur === "quadweekly") return weeksDiff >= 0 && weeksDiff % 4 === 0;
+
+  if (event.recur === "monthly") {
+    const checkDate = new Date(dateStr + "T00:00:00");
+    const eventDate = new Date(event.recurStart + "T00:00:00");
+    return checkDate.getDate() === eventDate.getDate() && checkDate >= eventDate;
+  }
+
+  return false;
+}
+
 // ---- SCHEDULE SETUP ----
 const startHour = 0;
 const endHour = 24;
@@ -48,49 +80,74 @@ scheduleInner.className = "schedule-inner";
 scheduleWrapper.appendChild(scheduleInner);
 scheduleDiv.appendChild(scheduleWrapper);
 
-for (let h = startHour; h <= endHour; h++) {
-  const topPercent = ((h - startHour) / totalHours) * 100;
-  const hourLine = document.createElement("div");
-  hourLine.style.position = "absolute";
-  hourLine.style.top = topPercent + "%";
-  hourLine.style.left = "0";
-  hourLine.style.right = "0";
-  hourLine.style.display = "flex";
-  hourLine.style.alignItems = "center";
-  hourLine.style.gap = "8px";
-  hourLine.innerHTML = `
-    <span style="font-size:10px; color:#b080a0; font-weight:600; min-width:36px;">${h}:00</span>
-    <div style="flex:1; height:0.5px; background:#e8c9e0;"></div>
-  `;
-  scheduleInner.appendChild(hourLine);
+function buildTimeGrid(inner) {
+  for (let h = startHour; h <= endHour; h++) {
+    const topPercent = ((h - startHour) / totalHours) * 100;
+    const hourLine = document.createElement("div");
+    hourLine.style.position = "absolute";
+    hourLine.style.top = topPercent + "%";
+    hourLine.style.left = "0";
+    hourLine.style.right = "0";
+    hourLine.style.display = "flex";
+    hourLine.style.alignItems = "center";
+    hourLine.style.gap = "8px";
+    hourLine.innerHTML = `
+      <span style="font-size:10px;color:#b080a0;font-weight:600;min-width:36px;">${h}:00</span>
+      <div style="flex:1;height:0.5px;background:#e8c9e0;"></div>
+    `;
+    inner.appendChild(hourLine);
 
-  if (h < endHour) {
-    const halfLine = document.createElement("div");
-    const halfPercent = ((h - startHour + 0.5) / totalHours) * 100;
-    halfLine.style.position = "absolute";
-    halfLine.style.top = halfPercent + "%";
-    halfLine.style.left = "44px";
-    halfLine.style.right = "0";
-    halfLine.style.height = "0.5px";
-    halfLine.style.background = "#f0d5e8";
-    scheduleInner.appendChild(halfLine);
+    if (h < endHour) {
+      const halfLine = document.createElement("div");
+      const halfPercent = ((h - startHour + 0.5) / totalHours) * 100;
+      halfLine.style.position = "absolute";
+      halfLine.style.top = halfPercent + "%";
+      halfLine.style.left = "44px";
+      halfLine.style.right = "0";
+      halfLine.style.height = "0.5px";
+      halfLine.style.background = "#f0d5e8";
+      inner.appendChild(halfLine);
+    }
   }
 }
 
-events.filter(e => e.date === todayStr).forEach(function(event) {
-  const hour = parseInt(event.time.split(":")[0]);
-  const topPercent = ((hour - startHour) / totalHours) * 100;
-  const block = document.createElement("div");
-  block.className = "schedule-block";
-  block.style.top = topPercent + "%";
-  block.innerHTML = `
-    <div class="event-card ${event.color}">
-      ${event.title}
-      ${event.subtask ? `<div class="event-subtask">• ${event.subtask}</div>` : ""}
-    </div>
-  `;
-  scheduleInner.appendChild(block);
-});
+function buildEventBlocks(inner, dateStr, allowDelete) {
+  getEventsForDate(dateStr).forEach(function(event) {
+    const hour = parseInt(event.time.split(":")[0]);
+    const mins = parseInt(event.time.split(":")[1]);
+    const topPercent = ((hour + mins / 60 - startHour) / totalHours) * 100;
+
+    let heightPercent = (1 / totalHours) * 100;
+    if (event.timeEnd) {
+      const eH = parseInt(event.timeEnd.split(":")[0]);
+      const eM = parseInt(event.timeEnd.split(":")[1]);
+      const duration = (eH + eM / 60) - (hour + mins / 60);
+      if (duration > 0) heightPercent = (duration / totalHours) * 100;
+    }
+
+    const block = document.createElement("div");
+    block.className = "schedule-block";
+    block.style.top = topPercent + "%";
+    block.style.height = heightPercent + "%";
+    block.style.overflow = "hidden";
+
+    const deleteBtn = allowDelete
+      ? `<div class="event-delete" onclick="promptDeleteEvent('${event.id}', '${dateStr}')">✕</div>`
+      : "";
+
+    block.innerHTML = `
+      <div class="event-card ${event.color}" style="height:100%;box-sizing:border-box;position:relative;">
+        ${event.title}
+        ${event.subtask ? `<div class="event-subtask">• ${event.subtask}</div>` : ""}
+        ${deleteBtn}
+      </div>
+    `;
+    inner.appendChild(block);
+  });
+}
+
+buildTimeGrid(scheduleInner);
+buildEventBlocks(scheduleInner, todayStr, false);
 
 function drawCurrentTimeLine() {
   const existing = document.getElementById("time-line");
@@ -100,26 +157,12 @@ function drawCurrentTimeLine() {
   const topPercent = ((currentDecimalHour - startHour) / totalHours) * 100;
   const timeLine = document.createElement("div");
   timeLine.id = "time-line";
-  timeLine.style.position = "absolute";
-  timeLine.style.top = topPercent + "%";
-  timeLine.style.left = "36px";
-  timeLine.style.right = "0";
-  timeLine.style.height = "2px";
-  timeLine.style.background = "#c45c8a";
-  timeLine.style.zIndex = "10";
+  timeLine.style.cssText = `position:absolute;top:${topPercent}%;left:36px;right:0;height:2px;background:#c45c8a;z-index:10;`;
   const dot = document.createElement("div");
-  dot.style.position = "absolute";
-  dot.style.left = "-4px";
-  dot.style.top = "-3px";
-  dot.style.width = "8px";
-  dot.style.height = "8px";
-  dot.style.borderRadius = "50%";
-  dot.style.background = "#c45c8a";
+  dot.style.cssText = "position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:#c45c8a;";
   timeLine.appendChild(dot);
   scheduleInner.appendChild(timeLine);
-  const wrapperHeight = scheduleWrapper.clientHeight;
-  const innerHeight = scheduleInner.clientHeight;
-  const scrollTarget = (topPercent / 100) * innerHeight - wrapperHeight / 2;
+  const scrollTarget = (topPercent / 100) * scheduleInner.clientHeight - scheduleWrapper.clientHeight / 2;
   scheduleWrapper.scrollTop = Math.max(0, scrollTarget);
 }
 
@@ -175,25 +218,17 @@ document.getElementById("tasks").innerHTML = `
 `;
 
 // ---- HABITS ----
-const frequencyLabels = {
-  daily: "Daily",
-  weekly: "Weekly",
-  biweekly: "Bi-Weekly",
-  monthly: "Monthly"
-};
-
+const frequencyLabels = { daily: "Daily", weekly: "Weekly", biweekly: "Bi-Weekly", monthly: "Monthly" };
 const frequencyOrder = ["daily", "weekly", "biweekly", "monthly"];
 
-function isHabitDoneToday(habit) {
-  return habit.completedDates.includes(todayStr);
-}
+function isHabitDoneToday(habit) { return habit.completedDates.includes(todayStr); }
 
 function renderHomeHabits() {
   const habitsDiv = document.getElementById("habits");
   habitsDiv.innerHTML = "";
   habits.filter(h => h.frequency === "daily").forEach(function(habit) {
     const item = document.createElement("div");
-    item.className = "habit-item" + (isHabitDoneToday(habit) ? " done" : "");
+    item.className = "habit-item";
     item.dataset.pts = habit.pts;
     item.style.cursor = "pointer";
     item.innerHTML = `
@@ -201,9 +236,7 @@ function renderHomeHabits() {
       <span class="habit-text">${habit.name}</span>
       <span class="task-pts">${habit.pts}pt</span>
     `;
-    item.onclick = function() {
-      toggleHabitCard(habit, item);
-    };
+    item.onclick = function() { toggleHabitCard(habit, item); };
     habitsDiv.appendChild(item);
   });
 }
@@ -214,15 +247,12 @@ function renderHabitsTab() {
     container.innerHTML = "";
     const filtered = habits.filter(h => h.frequency === freq);
     if (filtered.length === 0) return;
-
     const label = document.createElement("p");
     label.className = "section-label";
     label.textContent = frequencyLabels[freq];
     container.appendChild(label);
-
     const done = filtered.filter(h => isHabitDoneToday(h));
     const notDone = filtered.filter(h => !isHabitDoneToday(h));
-
     [...notDone, ...done].forEach(function(habit) {
       const card = document.createElement("div");
       card.className = "habit-card" + (isHabitDoneToday(habit) ? " done" : "");
@@ -231,9 +261,7 @@ function renderHabitsTab() {
         <span class="habit-card-name">${habit.name}</span>
         <span class="habit-card-pts">${habit.pts}pt</span>
       `;
-      card.onclick = function() {
-        openHabitDetail(habit);
-      };
+      card.onclick = function() { openHabitDetail(habit); };
       container.appendChild(card);
     });
   });
@@ -250,16 +278,10 @@ function toggleHabitCard(habit, card) {
   saveData();
   updatePoints();
   renderHomeHabits();
-  if (activeHabit) {
-    openHabitDetail(habit);
-  } else {
-    renderHabitsTab();
-  }
+  if (activeHabit) { openHabitDetail(habit); } else { renderHabitsTab(); }
 }
 
-function openHabitModal() {
-  document.getElementById("habit-modal").style.display = "flex";
-}
+function openHabitModal() { document.getElementById("habit-modal").style.display = "flex"; }
 
 function closeHabitModal() {
   document.getElementById("habit-modal").style.display = "none";
@@ -288,33 +310,26 @@ function openHabitDetail(habit) {
   activeHabit = habit;
   document.getElementById("habit-detail").style.display = "flex";
   document.getElementById("detail-habit-name").textContent = habit.name;
-
   const isDone = isHabitDoneToday(habit);
   const btn = document.getElementById("detail-complete-btn");
   btn.textContent = isDone ? "✓ Completed Today!" : "Mark as Done Today";
   btn.style.background = isDone ? "#b080a0" : "#c45c8a";
   btn.onclick = function() { toggleHabitCard(habit, null); };
-
   document.getElementById("detail-total").textContent = habit.completedDates.length;
   document.getElementById("detail-pts-earned").textContent = habit.completedDates.length * habit.pts;
   document.getElementById("detail-points-display").textContent = "⭐ " + earnedPts + " pts";
-
   const streak = calculateStreak(habit);
   document.getElementById("detail-streak").textContent = streak;
-
   const labels = document.querySelectorAll(".detail-stat-label");
   if (habit.frequency === "daily") labels[0].textContent = "day streak";
   else if (habit.frequency === "weekly") labels[0].textContent = "week streak";
   else if (habit.frequency === "biweekly") labels[0].textContent = "period streak";
   else labels[0].textContent = "month streak";
-
   const lastCompleted = habit.completedDates.length > 0
-    ? habit.completedDates.slice().sort().reverse()[0]
-    : null;
+    ? habit.completedDates.slice().sort().reverse()[0] : null;
   document.getElementById("detail-last-completed").textContent = lastCompleted
     ? "Last completed: " + new Date(lastCompleted + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })
     : "Not completed yet";
-
   renderCompletionGrid(habit);
 }
 
@@ -328,16 +343,12 @@ function calculateStreak(habit) {
       else break;
     }
   } else if (habit.frequency === "weekly") {
-    const getWeekStart = (date) => {
-      const d = new Date(date); d.setDate(d.getDate() - d.getDay());
-      return d.toISOString().split("T")[0];
-    };
+    const getWeekStart = (date) => { const d = new Date(date); d.setDate(d.getDate() - d.getDay()); return d.toISOString().split("T")[0]; };
     const completedWeeks = new Set(habit.completedDates.map(d => getWeekStart(d)));
     const check = new Date();
     while (true) {
       const weekStart = getWeekStart(check);
-      if (completedWeeks.has(weekStart)) { streak++; check.setDate(check.getDate() - 7); }
-      else break;
+      if (completedWeeks.has(weekStart)) { streak++; check.setDate(check.getDate() - 7); } else break;
     }
   } else if (habit.frequency === "biweekly") {
     const getBiweeklyPeriod = (date) => {
@@ -349,16 +360,14 @@ function calculateStreak(habit) {
     const check = new Date();
     while (true) {
       const period = getBiweeklyPeriod(check);
-      if (completedPeriods.has(period)) { streak++; check.setDate(check.getDate() - 14); }
-      else break;
+      if (completedPeriods.has(period)) { streak++; check.setDate(check.getDate() - 14); } else break;
     }
   } else if (habit.frequency === "monthly") {
     const completedMonths = new Set(habit.completedDates.map(d => d.slice(0, 7)));
     const check = new Date();
     while (true) {
       const month = check.toISOString().split("T")[0].slice(0, 7);
-      if (completedMonths.has(month)) { streak++; check.setMonth(check.getMonth() - 1); }
-      else break;
+      if (completedMonths.has(month)) { streak++; check.setMonth(check.getMonth() - 1); } else break;
     }
   }
   return streak;
@@ -390,9 +399,6 @@ function renderCompletionGrid(habit) {
       const dateStr = year + "-" + String(month + 1).padStart(2,"0") + "-" + String(d).padStart(2,"0");
       const cell = document.createElement("div");
       cell.className = "completion-cell" + (habit.completedDates.includes(dateStr) ? " completed" : "");
-      cell.style.display = "flex";
-      cell.style.alignItems = "center";
-      cell.style.justifyContent = "center";
       const num = document.createElement("span");
       num.style.fontSize = "8px";
       num.style.color = habit.completedDates.includes(dateStr) ? "white" : "#b080a0";
@@ -400,7 +406,6 @@ function renderCompletionGrid(habit) {
       cell.appendChild(num);
       grid.appendChild(cell);
     }
-
   } else if (habit.frequency === "weekly") {
     grid.style.gridTemplateColumns = "repeat(4, 1fr)";
     for (let w = 11; w >= 0; w--) {
@@ -420,7 +425,6 @@ function renderCompletionGrid(habit) {
       cell.appendChild(dateLabel);
       grid.appendChild(cell);
     }
-
   } else if (habit.frequency === "biweekly") {
     grid.style.gridTemplateColumns = "repeat(3, 1fr)";
     for (let p = 11; p >= 0; p--) {
@@ -444,7 +448,6 @@ function renderCompletionGrid(habit) {
       cell.appendChild(l2);
       grid.appendChild(cell);
     }
-
   } else if (habit.frequency === "monthly") {
     grid.style.gridTemplateColumns = "repeat(4, 1fr)";
     for (let m = 11; m >= 0; m--) {
@@ -478,8 +481,7 @@ let calMonth = now.getMonth();
 let selectedDateStr = todayStr;
 
 function renderMiniCal() {
-  document.getElementById("mini-cal-title").textContent =
-    monthNames[calMonth].slice(0,3) + " " + calYear;
+  document.getElementById("mini-cal-title").textContent = monthNames[calMonth].slice(0,3) + " " + calYear;
   const grid = document.getElementById("mini-cal-grid");
   grid.innerHTML = "";
   dayLabels.forEach(function(d) {
@@ -508,8 +510,7 @@ function renderMiniCal() {
       renderMiniCal();
       renderCalSchedule();
       renderUpcoming();
-      document.getElementById("cal-selected-date").textContent =
-        monthNames[calMonth] + " " + d + ", " + calYear;
+      document.getElementById("cal-selected-date").textContent = monthNames[calMonth] + " " + d + ", " + calYear;
     };
     grid.appendChild(dayEl);
   }
@@ -533,49 +534,8 @@ function renderCalSchedule() {
   wrapper.appendChild(inner);
   container.appendChild(wrapper);
 
-  for (let h = startHour; h <= endHour; h++) {
-    const topPercent = ((h - startHour) / totalHours) * 100;
-    const hourLine = document.createElement("div");
-    hourLine.style.position = "absolute";
-    hourLine.style.top = topPercent + "%";
-    hourLine.style.left = "0";
-    hourLine.style.right = "0";
-    hourLine.style.display = "flex";
-    hourLine.style.alignItems = "center";
-    hourLine.style.gap = "8px";
-    hourLine.innerHTML = `
-      <span style="font-size:10px;color:#b080a0;font-weight:600;min-width:36px;">${h}:00</span>
-      <div style="flex:1;height:0.5px;background:#e8c9e0;"></div>
-    `;
-    inner.appendChild(hourLine);
-    for (let q = 1; q <= 3; q++) {
-      const qLine = document.createElement("div");
-      const qPercent = ((h - startHour + q * 0.25) / totalHours) * 100;
-      qLine.style.position = "absolute";
-      qLine.style.top = qPercent + "%";
-      qLine.style.left = q === 2 ? "44px" : "54px";
-      qLine.style.right = "0";
-      qLine.style.height = "0.5px";
-      qLine.style.background = q === 2 ? "#f0d5e8" : "#f8eef5";
-      inner.appendChild(qLine);
-    }
-  }
-
-  events.filter(e => e.date === selectedDateStr).forEach(function(event) {
-    const hour = parseInt(event.time.split(":")[0]);
-    const mins = parseInt(event.time.split(":")[1]);
-    const topPercent = ((hour + mins / 60 - startHour) / totalHours) * 100;
-    const block = document.createElement("div");
-    block.className = "schedule-block";
-    block.style.top = topPercent + "%";
-    block.innerHTML = `
-      <div class="event-card ${event.color}">
-        ${event.title}
-        ${event.subtask ? `<div class="event-subtask">• ${event.subtask}</div>` : ""}
-      </div>
-    `;
-    inner.appendChild(block);
-  });
+  buildTimeGrid(inner);
+  buildEventBlocks(inner, selectedDateStr, true);
 
   if (selectedDateStr === todayStr) {
     const currentDecimalHour = now.getHours() + now.getMinutes() / 60;
@@ -595,15 +555,19 @@ function renderCalSchedule() {
 function renderUpcoming() {
   const list = document.getElementById("upcoming-list");
   list.innerHTML = "";
-  const future = events
-    .filter(e => e.date >= todayStr)
-    .sort((a, b) => a.date.localeCompare(b.date))
-    .slice(0, 3);
-  if (future.length === 0) {
+  const next7Days = [];
+  for (let i = 0; i <= 14; i++) {
+    const d = new Date(now);
+    d.setDate(now.getDate() + i);
+    const dateStr = d.toISOString().split("T")[0];
+    getEventsForDate(dateStr).forEach(e => next7Days.push({ ...e, date: dateStr }));
+  }
+  const sorted = next7Days.sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time)).slice(0, 4);
+  if (sorted.length === 0) {
     list.innerHTML = '<p style="font-size:11px;color:#b080a0;">Nothing upcoming!</p>';
     return;
   }
-  future.forEach(function(event) {
+  sorted.forEach(function(event) {
     const d = new Date(event.date + "T00:00:00");
     const label = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
     const item = document.createElement("div");
@@ -613,30 +577,109 @@ function renderUpcoming() {
   });
 }
 
-// ---- MODAL ----
-function openModal() {
-  document.getElementById("modal").style.display = "flex";
-}
+// ---- EVENT MODAL ----
+document.getElementById("event-recur").addEventListener("change", function() {
+  document.getElementById("specific-days-wrap").style.display =
+    this.value === "specific" ? "block" : "none";
+  document.getElementById("recur-end-wrap").style.display =
+    this.value === "none" ? "none" : "block";
+});
+
+function openModal() { document.getElementById("modal").style.display = "flex"; }
 
 function closeModal() {
   document.getElementById("modal").style.display = "none";
   document.getElementById("event-title").value = "";
   document.getElementById("event-time").value = "";
+  document.getElementById("event-time-end").value = "";
   document.getElementById("event-subtask").value = "";
+  document.getElementById("event-recur").value = "none";
+  document.getElementById("event-recur-end").value = "";
+  document.getElementById("recur-end-wrap").style.display = "none";
+  document.getElementById("specific-days-wrap").style.display = "none";
+  document.querySelectorAll("#specific-days-wrap input").forEach(cb => cb.checked = false);
 }
-
 function saveEvent() {
   const title = document.getElementById("event-title").value;
   const time = document.getElementById("event-time").value;
+  const timeEnd = document.getElementById("event-time-end").value;
   const subtask = document.getElementById("event-subtask").value;
   const color = document.getElementById("event-color").value;
+  const recur = document.getElementById("event-recur").value;
   if (!title || !time) return;
-  const formattedTime = time.length === 5 ? time : time.slice(0,5);
-  events.push({ date: selectedDateStr, time: formattedTime, title, subtask, color });
+
+  const specificDays = recur === "specific"
+    ? Array.from(document.querySelectorAll("#specific-days-wrap input:checked")).map(cb => cb.value)
+    : [];
+
+  const formattedTime = time.slice(0,5);
+  const formattedEnd = timeEnd ? timeEnd.slice(0,5) : "";
+
+  events.push({
+    id: "e" + Date.now(),
+    date: selectedDateStr,
+    recurStart: selectedDateStr,
+    time: formattedTime,
+    timeEnd: formattedEnd,
+    title, subtask, color,
+    recur,
+    specificDays,
+    recurEnd: document.getElementById("event-recur-end").value || null,
+    exceptions: []
+  });
+
   saveData();
   renderCalSchedule();
   renderUpcoming();
   closeModal();
+}
+
+// ---- DELETE EVENT ----
+let pendingDeleteId = null;
+let pendingDeleteDate = null;
+
+function promptDeleteEvent(eventId, dateStr) {
+  const event = events.find(e => e.id === eventId);
+  if (!event) return;
+
+  pendingDeleteId = eventId;
+  pendingDeleteDate = dateStr;
+
+  if (event.recur === "none") {
+    const idx = events.findIndex(e => e.id === eventId);
+    if (idx !== -1) events.splice(idx, 1);
+    saveData();
+    renderCalSchedule();
+    renderUpcoming();
+  } else {
+    document.getElementById("delete-modal").style.display = "flex";
+    document.getElementById("delete-this-btn").onclick = function() {
+      const ev = events.find(e => e.id === pendingDeleteId);
+      if (ev) ev.exceptions.push(pendingDeleteDate);
+      saveData();
+      renderCalSchedule();
+      renderUpcoming();
+      closeDeleteModal();
+    };
+    document.getElementById("delete-future-btn").onclick = function() {
+      const ev = events.find(e => e.id === pendingDeleteId);
+      if (ev) {
+        const yesterday = new Date(pendingDeleteDate + "T00:00:00");
+        yesterday.setDate(yesterday.getDate() - 1);
+        ev.recurEnd = yesterday.toISOString().split("T")[0];
+      }
+      saveData();
+      renderCalSchedule();
+      renderUpcoming();
+      closeDeleteModal();
+    };
+  }
+}
+
+function closeDeleteModal() {
+  document.getElementById("delete-modal").style.display = "none";
+  pendingDeleteId = null;
+  pendingDeleteDate = null;
 }
 
 // ---- TAB SWITCHING ----
@@ -666,7 +709,5 @@ function switchTab(tab) {
     document.getElementById("cal-selected-date").textContent =
       monthNames[now.getMonth()] + " " + now.getDate() + ", " + now.getFullYear();
   }
-  if (tab === 'habits') {
-    renderHabitsTab();
-  }
+  if (tab === 'habits') { renderHabitsTab(); }
 }

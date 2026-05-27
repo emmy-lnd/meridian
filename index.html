@@ -18,11 +18,11 @@
       </div>
 
       <div class="header" id="tab-header" style="display:none;">
-  <div style="display:flex; justify-content:space-between; align-items:center;">
-    <p class="greeting" id="tab-title">Calendar</p>
-    <div class="points-pill" id="tab-points-display">⭐ 0 pts</div>
-  </div>
-</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <p class="greeting" id="tab-title">Calendar</p>
+          <div class="points-pill" id="tab-points-display">⭐ 0 pts</div>
+        </div>
+      </div>
 
       <!-- HOME TAB -->
       <div class="content" id="tab-home">
@@ -56,13 +56,13 @@
       </div>
 
       <!-- HABITS TAB -->
-     <div class="content" id="tab-habits" style="display:none;">
-  <button class="add-btn" onclick="openHabitModal()">+ Add Habit</button>
-  <div id="habits-daily"></div>
-  <div id="habits-weekly"></div>
-  <div id="habits-biweekly"></div>
-  <div id="habits-monthly"></div>
-</div>
+      <div class="content" id="tab-habits" style="display:none;">
+        <button class="add-btn" onclick="openHabitModal()">+ Add Habit</button>
+        <div id="habits-daily"></div>
+        <div id="habits-weekly"></div>
+        <div id="habits-biweekly"></div>
+        <div id="habits-monthly"></div>
+      </div>
 
       <!-- PET TAB -->
       <div class="content" id="tab-pet" style="display:none;">
@@ -74,76 +74,125 @@
         <p class="section-label">Focus</p>
       </div>
 
-      <div class="modal-overlay" id="habit-modal" style="display:none;">
-  <div class="modal">
-    <h2 class="modal-title">Add Habit</h2>
-    <input class="modal-input" id="habit-name" type="text" placeholder="Habit name" />
-    <select class="modal-input" id="habit-frequency">
-      <option value="daily">Daily</option>
-      <option value="weekly">Weekly</option>
-      <option value="biweekly">Bi-weekly</option>
-      <option value="monthly">Monthly</option>
-    </select>
-    <input class="modal-input" id="habit-pts" type="number" placeholder="Points value" min="1" max="10" />
-    <div class="modal-buttons">
-      <button class="modal-cancel" onclick="closeHabitModal()">Cancel</button>
-      <button class="modal-save" onclick="saveHabit()">Save</button>
-    </div>
-  </div>
-</div>
+      <!-- HABIT DETAIL -->
+      <div class="detail-overlay" id="habit-detail" style="display:none;">
+        <div class="detail-header">
+          <button class="detail-back" onclick="closeHabitDetail()">‹ Back</button>
+          <p class="detail-title" id="detail-habit-name"></p>
+          <div class="points-pill" id="detail-points-display">⭐ 0 pts</div>
+        </div>
+        <div class="detail-content">
+          <p style="font-size:11px;color:#b080a0;font-weight:600;margin-bottom:12px;" id="detail-last-completed"></p>
+          <div class="detail-stats-row">
+            <div class="detail-stat">
+              <p class="detail-stat-num" id="detail-streak">0</p>
+              <p class="detail-stat-label">day streak</p>
+            </div>
+            <div class="detail-stat">
+              <p class="detail-stat-num" id="detail-total">0</p>
+              <p class="detail-stat-label">total completions</p>
+            </div>
+            <div class="detail-stat">
+              <p class="detail-stat-num" id="detail-pts-earned">0</p>
+              <p class="detail-stat-label">pts earned</p>
+            </div>
+          </div>
+          <p class="section-label" style="margin-top:16px;">This Month</p>
+          <div class="completion-grid" id="detail-grid"></div>
+          <button class="modal-save" style="width:100%;margin-top:16px;" id="detail-complete-btn"></button>
+        </div>
+      </div>
 
-      <!-- MODAL -->
+      <!-- EVENT MODAL -->
       <div class="modal-overlay" id="modal" style="display:none;">
         <div class="modal">
           <h2 class="modal-title">Add Event</h2>
           <input class="modal-input" id="event-title" type="text" placeholder="Class or event name" />
+          <p style="font-size:11px;color:#b080a0;font-weight:700;margin-bottom:-4px;">Start time</p>
           <input class="modal-input" id="event-time" type="time" />
+          <p style="font-size:11px;color:#b080a0;font-weight:700;margin-bottom:-4px;">End time</p>
+          <input class="modal-input" id="event-time-end" type="time" />
           <input class="modal-input" id="event-subtask" type="text" placeholder="Note (optional)" />
           <select class="modal-input" id="event-color">
             <option value="pink">Pink</option>
             <option value="lavender">Lavender</option>
             <option value="peach">Peach</option>
             <option value="mint">Mint</option>
+            <option value="sky">Sky</option>
+            <option value="yellow">Yellow</option>
+            <option value="coral">Coral</option>
+            <option value="lilac">Lilac</option>
           </select>
+          <select class="modal-input" id="event-recur">
+            <option value="none">No recurrence</option>
+            <option value="daily">Every day</option>
+            <option value="specific">Specific days</option>
+            <option value="weekly">Every week</option>
+            <option value="biweekly">Every 2 weeks</option>
+            <option value="triweekly">Every 3 weeks</option>
+            <option value="quadweekly">Every 4 weeks</option>
+            <option value="monthly">Monthly</option>
+          </select>
+          <div id="recur-end-wrap" style="display:none;">
+  <p style="font-size:11px;color:#b080a0;font-weight:700;margin-bottom:-4px;">End recurrence (optional)</p>
+  <input class="modal-input" id="event-recur-end" type="date" />
+</div>
+          <div id="specific-days-wrap" style="display:none;">
+            <div class="day-picker">
+              <label class="day-pick"><input type="checkbox" value="0" /> Su</label>
+              <label class="day-pick"><input type="checkbox" value="1" /> Mo</label>
+              <label class="day-pick"><input type="checkbox" value="2" /> Tu</label>
+              <label class="day-pick"><input type="checkbox" value="3" /> We</label>
+              <label class="day-pick"><input type="checkbox" value="4" /> Th</label>
+              <label class="day-pick"><input type="checkbox" value="5" /> Fr</label>
+              <label class="day-pick"><input type="checkbox" value="6" /> Sa</label>
+            </div>
+          </div>
           <div class="modal-buttons">
             <button class="modal-cancel" onclick="closeModal()">Cancel</button>
             <button class="modal-save" onclick="saveEvent()">Save</button>
           </div>
         </div>
       </div>
-      <div class="detail-overlay" id="habit-detail" style="display:none;">
-  <div class="detail-header">
-    <button class="detail-back" onclick="closeHabitDetail()">‹ Back</button>
-    <p class="detail-title" id="detail-habit-name"></p>
-    <p style="font-size:11px; color:#b080a0; font-weight:600; margin-top:2px;" id="detail-last-completed"></p>
-    <div class="points-pill" id="detail-points-display">⭐ 0 pts</div>
-  </div>
-  <div class="detail-content">
-    <div class="detail-stats-row">
-      <div class="detail-stat">
-        <p class="detail-stat-num" id="detail-streak">0</p>
-        <p class="detail-stat-label">day streak</p>
+
+      <!-- DELETE RECURRING MODAL -->
+      <div class="modal-overlay" id="delete-modal" style="display:none;">
+        <div class="modal">
+          <h2 class="modal-title">Delete Event</h2>
+          <p style="font-size:13px;color:#4a2e3a;margin-bottom:8px;">This is a recurring event. What would you like to delete?</p>
+          <div class="modal-buttons" style="flex-direction:column;gap:8px;">
+            <button class="modal-save" id="delete-this-btn">Just this event</button>
+            <button class="modal-save" style="background:#a04070;" id="delete-future-btn">This and all future events</button>
+            <button class="modal-cancel" onclick="closeDeleteModal()">Cancel</button>
+          </div>
+        </div>
       </div>
-      <div class="detail-stat">
-        <p class="detail-stat-num" id="detail-total">0</p>
-        <p class="detail-stat-label">total completions</p>
+
+      <!-- HABIT MODAL -->
+      <div class="modal-overlay" id="habit-modal" style="display:none;">
+        <div class="modal">
+          <h2 class="modal-title">Add Habit</h2>
+          <input class="modal-input" id="habit-name" type="text" placeholder="Habit name" />
+          <select class="modal-input" id="habit-frequency">
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="biweekly">Bi-weekly</option>
+            <option value="monthly">Monthly</option>
+          </select>
+          <input class="modal-input" id="habit-pts" type="number" placeholder="Points value" min="1" max="10" />
+          <div class="modal-buttons">
+            <button class="modal-cancel" onclick="closeHabitModal()">Cancel</button>
+            <button class="modal-save" onclick="saveHabit()">Save</button>
+          </div>
+        </div>
       </div>
-      <div class="detail-stat">
-        <p class="detail-stat-num" id="detail-pts-earned">0</p>
-        <p class="detail-stat-label">pts earned</p>
-      </div>
-    </div>
-    <p class="section-label" style="margin-top:16px;">This Month</p>
-    <div class="completion-grid" id="detail-grid"></div>
-    <button class="modal-save" style="width:100%; margin-top:16px;" id="detail-complete-btn"></button>
-  </div>
-</div>
+
       <div class="bottom-nav">
-        <button onclick="switchTab('calendar')">📅 Calendar</button>
-        <button onclick="switchTab('habits')">✅ Habits</button>
-        <button class="active" onclick="switchTab('home')">🏠 Home</button>
-        <button onclick="switchTab('pet')">🐾 Pet</button>
-        <button onclick="switchTab('focus')">⏱ Focus</button>
+        <button onclick="switchTab('calendar')">📅<br>Calendar</button>
+        <button onclick="switchTab('habits')">✅<br>Habits</button>
+        <button class="active" onclick="switchTab('home')">🏠<br>Home</button>
+        <button onclick="switchTab('pet')">🐾<br>Pet</button>
+        <button onclick="switchTab('focus')">⏱<br>Focus</button>
       </div>
 
     </div>
