@@ -31,6 +31,29 @@ function saveData() {
   localStorage.setItem("meridian-pts", earnedPts);
 }
 
+// ---- FOCUS TAB ----
+let pomodoroInterval = null;
+let pomodoroSeconds = 25 * 60;
+let pomodoroIsBreak = false;
+let pomodoroRound = 1;
+let pomodoroRunning = false;
+const POMO_WORK = 25 * 60;
+const POMO_SHORT_BREAK = 5 * 60;
+const POMO_LONG_BREAK = 15 * 60;
+
+let flowInterval = null;
+let flowSeconds = 0;
+let flowRunning = false;
+
+let customMinutes = 25;
+
+let customInterval = null;
+let customTotalSeconds = 25 * 60;
+let customSecondsLeft = 25 * 60;
+let customRunning = false;
+
+let clockInterval = null;
+
 // ---- RECURRING LOGIC ----
 function eventOccursOnDate(event, dateStr) {
   if (event.exceptions && event.exceptions.includes(dateStr)) return false;
@@ -63,6 +86,10 @@ function eventOccursOnDate(event, dateStr) {
   }
 
   return false;
+}
+
+function getEventsForDate(dateStr) {
+  return events.filter(e => eventOccursOnDate(e, dateStr));
 }
 
 // ---- SCHEDULE SETUP ----
@@ -711,3 +738,238 @@ function switchTab(tab) {
   }
   if (tab === 'habits') { renderHabitsTab(); }
 }
+
+
+function openFocus(type) {
+  document.getElementById("focus-overlay").style.display = "flex";
+  document.getElementById("focus-pomodoro").style.display = "none";
+  document.getElementById("focus-flow").style.display = "none";
+  document.getElementById("focus-custom").style.display = "none";
+  document.getElementById("focus-clock").style.display = "none";
+  document.getElementById("focus-" + type).style.display = "flex";
+  document.getElementById("focus-" + type).style.flexDirection = "column";
+  document.getElementById("focus-" + type).style.alignItems = "center";
+
+  if (type === "pomodoro") {
+    updatePomoDisplay();
+    document.getElementById("focus-pts-display").textContent = "⭐ " + earnedPts + " pts";
+  }
+  if (type === "flow") {
+    document.getElementById("focus-flow-pts").textContent = "⭐ " + earnedPts + " pts";
+  }
+  if (type === "custom") {
+    document.getElementById("focus-custom-pts").textContent = "⭐ " + earnedPts + " pts";
+  }
+  if (type === "clock") {
+    updateAestheticClock();
+    clockInterval = setInterval(updateAestheticClock, 1000);
+  }
+}
+
+function closeFocus() {
+  document.getElementById("focus-overlay").style.display = "none";
+  if (clockInterval) { clearInterval(clockInterval); clockInterval = null; }
+}
+
+// POMODORO
+function formatTime(seconds) {
+  const m = Math.floor(seconds / 60).toString().padStart(2, "0");
+  const s = (seconds % 60).toString().padStart(2, "0");
+  return m + ":" + s;
+}
+
+function updatePomoDisplay() {
+  document.getElementById("pomo-display").textContent = formatTime(pomodoroSeconds);
+  document.getElementById("pomo-round-label").textContent =
+    pomodoroIsBreak ? (pomodoroRound === 4 ? "Long Break!" : "Short Break!") : `Round ${pomodoroRound} of 4`;
+  document.getElementById("pomo-mode-label").textContent = pomodoroIsBreak ? "BREAK" : "FOCUS";
+
+  const total = pomodoroIsBreak
+    ? (pomodoroRound === 4 ? POMO_LONG_BREAK : POMO_SHORT_BREAK)
+    : POMO_WORK;
+  const circumference = 339.3;
+  const offset = circumference * (1 - pomodoroSeconds / total);
+  document.getElementById("pomo-ring").style.strokeDashoffset = offset;
+}
+
+function togglePomodoro() {
+  if (pomodoroRunning) {
+    clearInterval(pomodoroInterval);
+    pomodoroRunning = false;
+    document.getElementById("pomo-btn").textContent = "Resume";
+  } else {
+    pomodoroRunning = true;
+    document.getElementById("pomo-btn").textContent = "Pause";
+    pomodoroInterval = setInterval(function() {
+      pomodoroSeconds--;
+      updatePomoDisplay();
+      if (pomodoroSeconds <= 0) {
+        clearInterval(pomodoroInterval);
+        pomodoroRunning = false;
+        if (!pomodoroIsBreak) {
+          earnedPts += 2;
+          updatePoints();
+          document.getElementById("pomo-stars").textContent = "⭐ +2 stars earned!";
+          setTimeout(() => document.getElementById("pomo-stars").textContent = "", 3000);
+          pomodoroIsBreak = true;
+          pomodoroSeconds = pomodoroRound === 4 ? POMO_LONG_BREAK : POMO_SHORT_BREAK;
+        } else {
+          pomodoroIsBreak = false;
+          pomodoroRound = pomodoroRound >= 4 ? 1 : pomodoroRound + 1;
+          pomodoroSeconds = POMO_WORK;
+        }
+        updatePomoDisplay();
+        document.getElementById("pomo-btn").textContent = "Start";
+      }
+    }, 1000);
+  }
+}
+
+function resetPomodoro() {
+  clearInterval(pomodoroInterval);
+  pomodoroRunning = false;
+  pomodoroSeconds = POMO_WORK;
+  pomodoroIsBreak = false;
+  pomodoroRound = 1;
+  document.getElementById("pomo-btn").textContent = "Start";
+  document.getElementById("pomo-stars").textContent = "";
+  updatePomoDisplay();
+}
+
+// FLOW
+function toggleFlow() {
+  if (flowRunning) {
+    clearInterval(flowInterval);
+    flowRunning = false;
+    document.getElementById("flow-btn").textContent = "Resume";
+  } else {
+    flowRunning = true;
+    document.getElementById("flow-btn").textContent = "Pause";
+    flowInterval = setInterval(function() {
+      flowSeconds++;
+      document.getElementById("flow-display").textContent = formatTime(flowSeconds);
+    }, 1000);
+  }
+}
+
+function stopFlow() {
+  clearInterval(flowInterval);
+  flowRunning = false;
+  const minutesCompleted = Math.floor(flowSeconds / 60);
+  const stars = Math.floor(minutesCompleted / 5);
+  if (stars > 0) {
+    earnedPts += stars;
+    updatePoints();
+    document.getElementById("flow-stars").textContent = `⭐ +${stars} stars earned!`;
+    setTimeout(() => document.getElementById("flow-stars").textContent = "", 3000);
+  }
+  flowSeconds = 0;
+  document.getElementById("flow-display").textContent = "00:00";
+  document.getElementById("flow-btn").textContent = "Start";
+  document.getElementById("focus-flow-pts").textContent = "⭐ " + earnedPts + " pts";
+}
+
+// CUSTOM
+
+function adjustCustomTime(delta) {
+  customMinutes = Math.max(5, Math.min(120, customMinutes + delta));
+  customTotalSeconds = customMinutes * 60;
+  customSecondsLeft = customTotalSeconds;
+  document.getElementById("custom-display").textContent = formatTime(customSecondsLeft);
+}
+
+function startCustom() {
+  document.getElementById("custom-setup").style.display = "none";
+  document.getElementById("custom-running").style.display = "flex";
+  document.getElementById("custom-running").style.flexDirection = "column";
+  document.getElementById("custom-running").style.alignItems = "center";
+  document.getElementById("custom-running-display").textContent = formatTime(customSecondsLeft);
+  toggleCustom();
+}
+
+function toggleCustom() {
+  if (customRunning) {
+    clearInterval(customInterval);
+    customRunning = false;
+    document.getElementById("custom-btn").textContent = "Resume";
+  } else {
+    customRunning = true;
+    document.getElementById("custom-btn").textContent = "Pause";
+    customInterval = setInterval(function() {
+      customSecondsLeft--;
+      document.getElementById("custom-running-display").textContent = formatTime(customSecondsLeft);
+      if (customSecondsLeft <= 0) {
+        clearInterval(customInterval);
+        customRunning = false;
+        const stars = Math.max(1, Math.floor(customMinutes / 10));
+        earnedPts += stars;
+        updatePoints();
+        document.getElementById("custom-stars").textContent = `⭐ +${stars} stars earned!`;
+        document.getElementById("focus-custom-pts").textContent = "⭐ " + earnedPts + " pts";
+        document.getElementById("custom-btn").textContent = "Done!";
+      }
+    }, 1000);
+  }
+}
+
+function resetCustom() {
+  clearInterval(customInterval);
+  customRunning = false;
+  customSecondsLeft = customTotalSeconds;
+  document.getElementById("custom-running-display").textContent = formatTime(customSecondsLeft);
+  document.getElementById("custom-btn").textContent = "Pause";
+  document.getElementById("custom-stars").textContent = "";
+  document.getElementById("custom-setup").style.display = "block";
+  document.getElementById("custom-running").style.display = "none";
+}
+
+// AESTHETIC CLOCK
+function updateAestheticClock() {
+  const now = new Date();
+  const h = now.getHours().toString().padStart(2, "0");
+  const m = now.getMinutes().toString().padStart(2, "0");
+  const s = now.getSeconds().toString().padStart(2, "0");
+
+  document.getElementById("aesthetic-clock").innerHTML = `
+    <div style="display:flex;gap:8px;align-items:center;justify-content:center;">
+      <div class="clock-block">${h[0]}</div>
+      <div class="clock-block">${h[1]}</div>
+      <div class="clock-sep">:</div>
+      <div class="clock-block">${m[0]}</div>
+      <div class="clock-block">${m[1]}</div>
+      <div class="clock-sep">:</div>
+      <div class="clock-block">${s[0]}</div>
+      <div class="clock-block">${s[1]}</div>
+    </div>
+  `;
+
+  document.getElementById("aesthetic-date").textContent = now.toLocaleDateString("en-US", {
+    weekday: "long", month: "long", day: "numeric"
+  });
+}
+
+// Add these to style.css too
+const extraStyles = `
+  .clock-block {
+    background: #f4d0e6;
+    color: #c45c8a;
+    border-radius: 12px;
+    width: 52px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    font-weight: 800;
+    font-family: 'Nunito', sans-serif;
+  }
+  .clock-sep {
+    font-size: 36px;
+    font-weight: 800;
+    color: #c45c8a;
+    margin-bottom: 4px;
+  }
+`;
+const styleTag = document.createElement("style");
+styleTag.textContent = extraStyles;
+document.head.appendChild(styleTag);

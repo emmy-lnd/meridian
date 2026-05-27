@@ -70,9 +70,111 @@
       </div>
 
       <!-- FOCUS TAB -->
-      <div class="content" id="tab-focus" style="display:none;">
-        <p class="section-label">Focus</p>
+<div class="content" id="tab-focus" style="display:none;">
+  <div class="focus-cards">
+    <div class="focus-card" onclick="openFocus('pomodoro')">
+      <div class="focus-card-icon">🍅</div>
+      <div class="focus-card-title">Pomodoro</div>
+      <div class="focus-card-desc">25 min focus, 5 min break</div>
+    </div>
+    <div class="focus-card" onclick="openFocus('flow')">
+      <div class="focus-card-icon">🌊</div>
+      <div class="focus-card-title">Flow</div>
+      <div class="focus-card-desc">Open-ended focus session</div>
+    </div>
+    <div class="focus-card" onclick="openFocus('custom')">
+      <div class="focus-card-icon">⏱</div>
+      <div class="focus-card-title">Custom</div>
+      <div class="focus-card-desc">Set your own duration</div>
+    </div>
+    <div class="focus-card" onclick="openFocus('clock')">
+      <div class="focus-card-icon">🕐</div>
+      <div class="focus-card-title">Clock</div>
+      <div class="focus-card-desc">Aesthetic digital display</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOCUS OVERLAY -->
+<div class="detail-overlay" id="focus-overlay" style="display:none;">
+  <div class="focus-overlay-inner">
+
+    <!-- POMODORO -->
+    <div id="focus-pomodoro" style="display:none;">
+      <div class="focus-top-bar">
+        <button class="detail-back" onclick="closeFocus()">‹ Back</button>
+        <div class="points-pill" id="focus-pts-display">⭐ 0 pts</div>
       </div>
+      <div class="focus-round-label" id="pomo-round-label">Round 1 of 4</div>
+      <div class="focus-mode-label" id="pomo-mode-label">FOCUS</div>
+      <div class="focus-clock-display" id="pomo-display">25:00</div>
+      <div class="focus-progress-ring">
+        <svg viewBox="0 0 120 120" width="200" height="200">
+          <circle cx="60" cy="60" r="54" fill="none" stroke="#f4d0e6" stroke-width="8"/>
+          <circle cx="60" cy="60" r="54" fill="none" stroke="#c45c8a" stroke-width="8"
+            stroke-dasharray="339.3" id="pomo-ring"
+            stroke-dashoffset="0" stroke-linecap="round"
+            transform="rotate(-90 60 60)"/>
+        </svg>
+      </div>
+      <div class="focus-btn-row">
+        <button class="focus-btn" id="pomo-btn" onclick="togglePomodoro()">Start</button>
+        <button class="focus-btn focus-btn-secondary" onclick="resetPomodoro()">Reset</button>
+      </div>
+      <div class="focus-stars-earned" id="pomo-stars"></div>
+    </div>
+
+    <!-- FLOW -->
+    <div id="focus-flow" style="display:none;">
+      <div class="focus-top-bar">
+        <button class="detail-back" onclick="closeFocus()">‹ Back</button>
+        <div class="points-pill" id="focus-flow-pts">⭐ 0 pts</div>
+      </div>
+      <div class="focus-mode-label">FLOW</div>
+      <div class="focus-clock-display" id="flow-display">00:00</div>
+      <div class="focus-stars-earned" id="flow-stars"></div>
+      <div class="focus-btn-row">
+        <button class="focus-btn" id="flow-btn" onclick="toggleFlow()">Start</button>
+        <button class="focus-btn focus-btn-secondary" onclick="stopFlow()">Done</button>
+      </div>
+      <p style="font-size:11px;color:#b080a0;margin-top:16px;text-align:center;">Hit Done when finished to earn stars</p>
+    </div>
+
+    <!-- CUSTOM -->
+    <div id="focus-custom" style="display:none;">
+      <div class="focus-top-bar">
+        <button class="detail-back" onclick="closeFocus()">‹ Back</button>
+        <div class="points-pill" id="focus-custom-pts">⭐ 0 pts</div>
+      </div>
+      <div class="focus-mode-label">CUSTOM</div>
+      <div id="custom-setup" >
+        <p style="font-size:13px;color:#b080a0;text-align:center;margin-bottom:16px;">How long do you want to focus?</p>
+        <div class="custom-time-pick">
+          <button class="custom-min-btn" onclick="adjustCustomTime(-5)">−5</button>
+          <div class="focus-clock-display" id="custom-display">25:00</div>
+          <button class="custom-min-btn" onclick="adjustCustomTime(5)">+5</button>
+        </div>
+        <button class="focus-btn" style="margin-top:24px;" onclick="startCustom()">Start</button>
+      </div>
+      <div id="custom-running" style="display:none;">
+        <div class="focus-clock-display" id="custom-running-display">25:00</div>
+        <div class="focus-stars-earned" id="custom-stars"></div>
+        <div class="focus-btn-row">
+          <button class="focus-btn" id="custom-btn" onclick="toggleCustom()">Pause</button>
+          <button class="focus-btn focus-btn-secondary" onclick="resetCustom()">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLOCK -->
+    <div id="focus-clock" style="display:none;">
+      <button class="clock-close" onclick="closeFocus()">✕</button>
+      <div class="aesthetic-clock" id="aesthetic-clock"></div>
+      <div class="aesthetic-date" id="aesthetic-date"></div>
+    </div>
+
+  </div>
+</div>
 
       <!-- HABIT DETAIL -->
       <div class="detail-overlay" id="habit-detail" style="display:none;">

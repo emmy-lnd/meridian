@@ -543,3 +543,172 @@ body {
   color: #b080a0;
   text-align: center;
 }
+
+/* FOCUS TAB */
+.focus-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.focus-card {
+  background: white;
+  border: 1.5px solid #e8c9e0;
+  border-radius: 16px;
+  padding: 20px 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.focus-card:hover { background: #fdf0f8; }
+
+.focus-card-icon { font-size: 28px; margin-bottom: 8px; }
+
+.focus-card-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #c45c8a;
+  margin-bottom: 4px;
+}
+
+.focus-card-desc {
+  font-size: 11px;
+  color: #b080a0;
+  font-weight: 600;
+}
+
+/* FOCUS OVERLAY */
+.focus-overlay-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px;
+  width: 100%;
+}
+
+.focus-top-bar {
+  position: absolute;
+  top: 24px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.focus-round-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #b080a0;
+  margin-bottom: 4px;
+}
+
+.focus-mode-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: #b080a0;
+  margin-bottom: 16px;
+}
+
+.focus-clock-display {
+  font-size: 64px;
+  font-weight: 800;
+  color: #c45c8a;
+  font-family: 'Nunito', sans-serif;
+  letter-spacing: 0.05em;
+  margin-bottom: 16px;
+}
+
+.focus-progress-ring {
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.focus-btn-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.focus-btn {
+  background: #c45c8a;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 12px 32px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.focus-btn-secondary {
+  background: #f4d0e6;
+  color: #8b3a62;
+}
+
+.focus-stars-earned {
+  font-size: 20px;
+  font-weight: 800;
+  color: #c45c8a;
+  min-height: 28px;
+  text-align: center;
+}
+
+.custom-time-pick {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: center;
+}
+
+.custom-min-btn {
+  background: #f4d0e6;
+  color: #8b3a62;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+}
+
+/* AESTHETIC CLOCK */
+.clock-close {
+  position: absolute;
+  top: 24px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #b080a0;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.aesthetic-clock {
+  font-size: 72px;
+  font-weight: 800;
+  color: #c45c8a;
+  font-family: 'Nunito', sans-serif;
+  letter-spacing: 0.08em;
+  text-align: center;
+  line-height: 1;
+}
+
+.aesthetic-date {
+  font-size: 14px;
+  font-weight: 700;
+  color: #b080a0;
+  margin-top: 12px;
+  text-align: center;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
