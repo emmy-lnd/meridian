@@ -1,7 +1,7 @@
 console.log("Meridian is running");
 
 // ---- DATA ----
-const events = [
+const defaultEvents = [
   { date: "2026-05-26", time: "09:00", title: "AP Chemistry", subtask: "Lab quiz", color: "pink" },
   { date: "2026-05-26", time: "10:00", title: "AP Calculus BC", subtask: "6.7 video + notes", color: "lavender" },
   { date: "2026-05-26", time: "12:00", title: "British Literature", subtask: "Presentation 01/16", color: "peach" },
@@ -9,6 +9,29 @@ const events = [
   { date: "2026-05-28", time: "09:00", title: "Math Test", subtask: "", color: "lavender" },
   { date: "2026-05-30", time: "14:00", title: "Swim Meet", subtask: "", color: "mint" }
 ];
+
+const defaultHabits = [
+  { id: 1, name: "Drink Water", frequency: "daily", pts: 1, completedDates: [] },
+  { id: 2, name: "Exercise", frequency: "daily", pts: 1, completedDates: [] },
+  { id: 3, name: "Brush Teeth", frequency: "daily", pts: 1, completedDates: [] },
+  { id: 4, name: "Clean Room", frequency: "weekly", pts: 2, completedDates: [] },
+  { id: 5, name: "Change Contacts", frequency: "biweekly", pts: 1, completedDates: [] },
+  { id: 6, name: "Wash Car", frequency: "monthly", pts: 3, completedDates: [] }
+];
+
+const savedEvents = localStorage.getItem("meridian-events");
+const savedHabits = localStorage.getItem("meridian-habits");
+const savedPts = localStorage.getItem("meridian-pts");
+
+const events = savedEvents ? JSON.parse(savedEvents) : defaultEvents;
+const habits = savedHabits ? JSON.parse(savedHabits) : defaultHabits;
+let earnedPts = savedPts ? parseInt(savedPts) : 0;
+
+function saveData() {
+  localStorage.setItem("meridian-events", JSON.stringify(events));
+  localStorage.setItem("meridian-habits", JSON.stringify(habits));
+  localStorage.setItem("meridian-pts", earnedPts);
+}
 
 // ---- HOME SCHEDULE ----
 const startHour = 0;
@@ -115,6 +138,7 @@ let earnedPts = 0;
 function updatePoints() {
   document.getElementById("points-display").textContent = "⭐ " + earnedPts + " pts today";
   document.getElementById("tab-points-display").textContent = "⭐ " + earnedPts + " pts";
+  saveData();
 }
 
 function toggleTask(el) {
@@ -133,9 +157,9 @@ function toggleTask(el) {
     earnedPts += pts;
     container.appendChild(parentItem);
   }
+  saveData();
   updatePoints();
 }
-
 function toggleHabit(el) {
   const pts = parseInt(el.dataset.pts);
   const container = el.parentElement;
@@ -382,6 +406,7 @@ function saveEvent() {
   const formattedTime = time.length === 5 ? time : time.slice(0,5);
   events.push({ date: selectedDateStr, time: formattedTime, title, subtask, color });
 
+  saveData();
   renderCalSchedule();
   renderUpcoming();
   closeModal();
@@ -492,6 +517,7 @@ function toggleHabitCard(habit, card) {
     habit.completedDates.push(todayStr);
     earnedPts += habit.pts;
   }
+  saveData();
   updatePoints();
   renderHomeHabits();
 
@@ -546,6 +572,7 @@ function saveHabit() {
     completedDates: []
   });
 
+  saveData();
   renderHabitsTab();
   renderHomeHabits();
   closeHabitModal();
