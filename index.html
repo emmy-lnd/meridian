@@ -12,43 +12,87 @@
     <div class="app">
 
       <div class="header" id="main-header">
-  <p class="greeting">Good morning 🌸</p>
-  <p class="date">Sunday, May 25</p>
-  <div class="points-pill" id="points-display">⭐ 0 pts today</div>
+        <p class="greeting">Good morning 🌸</p>
+        <p class="date" id="home-date"></p>
+        <div class="points-pill" id="points-display">⭐ 0 pts today</div>
+      </div>
+
+      <div class="header" id="tab-header" style="display:none;">
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <p class="greeting" id="tab-title">Calendar</p>
+    <div class="points-pill" id="tab-points-display">⭐ 0 pts</div>
+  </div>
 </div>
 
-<div class="header" id="tab-header" style="display:none;">
-  <p class="greeting" id="tab-title">Calendar</p>
-</div>
-
+      <!-- HOME TAB -->
       <div class="content" id="tab-home">
         <p class="section-label">Today's schedule</p>
         <div id="schedule"></div>
-
         <p class="section-label">Tasks</p>
         <div id="tasks"></div>
-
         <p class="section-label">Habits</p>
         <div id="habits"></div>
       </div>
 
+      <!-- CALENDAR TAB -->
       <div class="content" id="tab-calendar" style="display:none;">
-        <p class="section-label">Calendar</p>
-        <div id="year-view"></div>
+        <div class="cal-top-row">
+          <div class="mini-cal-wrap">
+            <div class="mini-cal-header">
+              <button class="mini-nav" onclick="changeCalMonth(-1)">‹</button>
+              <span id="mini-cal-title"></span>
+              <button class="mini-nav" onclick="changeCalMonth(1)">›</button>
+            </div>
+            <div class="mini-cal-grid" id="mini-cal-grid"></div>
+          </div>
+          <div class="upcoming-wrap">
+            <p class="section-label" style="margin-top:0;">Upcoming</p>
+            <div id="upcoming-list"></div>
+          </div>
+        </div>
+        <p class="section-label">Schedule — <span id="cal-selected-date"></span></p>
+        <button class="add-btn" onclick="openModal()">+ Add Event</button>
+        <div id="cal-schedule"></div>
       </div>
 
-      <div class="content" id="tab-habits" style="display:none;">
-        <p class="section-label">Habits</p>
-      </div>
+      <!-- HABITS TAB -->
+     <div class="content" id="tab-habits" style="display:none;">
+  <button class="add-btn" onclick="openHabitModal()">+ Add Habit</button>
+  <div id="habits-daily"></div>
+  <div id="habits-weekly"></div>
+  <div id="habits-biweekly"></div>
+  <div id="habits-monthly"></div>
+</div>
 
+      <!-- PET TAB -->
       <div class="content" id="tab-pet" style="display:none;">
         <p class="section-label">Pet</p>
       </div>
 
+      <!-- FOCUS TAB -->
       <div class="content" id="tab-focus" style="display:none;">
         <p class="section-label">Focus</p>
       </div>
 
+      <div class="modal-overlay" id="habit-modal" style="display:none;">
+  <div class="modal">
+    <h2 class="modal-title">Add Habit</h2>
+    <input class="modal-input" id="habit-name" type="text" placeholder="Habit name" />
+    <select class="modal-input" id="habit-frequency">
+      <option value="daily">Daily</option>
+      <option value="weekly">Weekly</option>
+      <option value="biweekly">Bi-weekly</option>
+      <option value="monthly">Monthly</option>
+    </select>
+    <input class="modal-input" id="habit-pts" type="number" placeholder="Points value" min="1" max="10" />
+    <div class="modal-buttons">
+      <button class="modal-cancel" onclick="closeHabitModal()">Cancel</button>
+      <button class="modal-save" onclick="saveHabit()">Save</button>
+    </div>
+  </div>
+</div>
+
+      <!-- MODAL -->
       <div class="modal-overlay" id="modal" style="display:none;">
         <div class="modal">
           <h2 class="modal-title">Add Event</h2>
@@ -67,7 +111,33 @@
           </div>
         </div>
       </div>
-
+      <div class="detail-overlay" id="habit-detail" style="display:none;">
+  <div class="detail-header">
+    <button class="detail-back" onclick="closeHabitDetail()">‹ Back</button>
+    <p class="detail-title" id="detail-habit-name"></p>
+    <p style="font-size:11px; color:#b080a0; font-weight:600; margin-top:2px;" id="detail-last-completed"></p>
+    <div class="points-pill" id="detail-points-display">⭐ 0 pts</div>
+  </div>
+  <div class="detail-content">
+    <div class="detail-stats-row">
+      <div class="detail-stat">
+        <p class="detail-stat-num" id="detail-streak">0</p>
+        <p class="detail-stat-label">day streak</p>
+      </div>
+      <div class="detail-stat">
+        <p class="detail-stat-num" id="detail-total">0</p>
+        <p class="detail-stat-label">total completions</p>
+      </div>
+      <div class="detail-stat">
+        <p class="detail-stat-num" id="detail-pts-earned">0</p>
+        <p class="detail-stat-label">pts earned</p>
+      </div>
+    </div>
+    <p class="section-label" style="margin-top:16px;">This Month</p>
+    <div class="completion-grid" id="detail-grid"></div>
+    <button class="modal-save" style="width:100%; margin-top:16px;" id="detail-complete-btn"></button>
+  </div>
+</div>
       <div class="bottom-nav">
         <button onclick="switchTab('calendar')">📅 Calendar</button>
         <button onclick="switchTab('habits')">✅ Habits</button>
